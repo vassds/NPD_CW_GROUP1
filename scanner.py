@@ -1,6 +1,7 @@
 import socket
 import sys
 import concurrent.futures
+import argparse
 
 def parse_ports(port_string):
     ports = set()
@@ -59,3 +60,40 @@ def scan_target(ip, ports, num_threads):
 if __name__ == "__main__":
     test_ports = parse_ports("80,443,8080-8085")
     scan_target("127.0.0.1", test_ports, 10)    
+
+def main():
+    parser = argparse.ArgumentParser(description="High-Performance Multi-threaded Network 
+Scanner")
+    parser.add_argument("-t", "--target", help="Target IP (e.g., 192.168.1.1)")
+    parser.add_argument("-p", "--ports", default=None, help="Port range to scan")
+    parser.add_argument("-T", "--threads", type=int, default=None, help="Number of 
+concurrent threads")
+    args = parser.parse_args()
+    print(r"""
+     _   _      _   ____                                
+    | \ | | ___| |_/ ___|  ___ __ _ _ __  _ __   ___ _ __ 
+    |  \| |/ _ \ __\___ \ / __/ _` | '_ \| '_ \ / _ \ '__|
+    | |\  |  __/ |_ ___) | (_| (_| | | | | | | |  __/ |   
+    |_| \_|\___|\__|____/ \___\__,_|_| |_|_| |_|\___|_|   
+    """)
+    
+    if not args.target:
+        args.target = input("[?] Enter Target IP: ").strip()
+        if not args.target:
+            sys.exit(1)
+    if args.ports is None:
+        port_input = input("[?] Enter ports to scan (e.g., 80,443 or 20-100) [Default 1
+1024]: ").strip()
+        args.ports = port_input if port_input else "1-1024"
+    if args.threads is None:
+        try:
+            thread_input = input("[?] Enter number of concurrent threads [Default 50]: 
+").strip()
+            args.threads = int(thread_input) if thread_input else 50
+        except ValueError:
+            args.threads = 50
+    print("\n[*] Initializing Network Scanner...")
+    ports = parse_ports(args.ports)
+    scan_target(args.target, ports, args.threads)
+if __name__ == "__main__":
+    main()
