@@ -2,6 +2,21 @@ import socket
 import sys
 import concurrent.futures
 
+def parse_ports(port_string):
+    ports = set()
+    try:
+        parts = port_string.split(',')
+        for part in parts:
+            if '-' in part:
+                start, end = map(int, part.split('-'))
+                ports.update(range(start, end + 1))
+            else:
+                ports.add(int(part))
+        return sorted(list(ports))
+    except ValueError:
+        print("[-] Error: Invalid port format. Use '80,443' or '20-100'.")
+        sys.exit(1)
+
 def grab_banner(sock):
     try:
         sock.settimeout(0.5) 
@@ -42,4 +57,5 @@ def scan_target(ip, ports, num_threads):
     return open_ports
 
 if __name__ == "__main__":
-    scan_target("127.0.0.1", [22, 80, 443, 8080], 10)
+    test_ports = parse_ports("80,443,8080-8085")
+    scan_target("127.0.0.1", test_ports, 10)    
